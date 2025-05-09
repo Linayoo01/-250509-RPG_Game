@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>내 SWF 임베드 페이지</title>
+  <!-- ① Ruffle Web Player 로더 -->
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <style>
+    body, html { margin: 0; background: #000; }
+    #flash-container { width: 550px; height: 400px; }
+  </style>
+</head>
+<body>
+  <!-- ② 게임을 그릴 DIV -->
+  <div id="flash-container"></div>
+
+  <!-- ③ DOMContentLoaded 후 Ruffle 인스턴스 생성 및 SWF 로드 -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
+      const container = document.getElementById("flash-container");
+      container.appendChild(player);
+      player.load(
+        "https://blog.kakaocdn.net/dn/uoGPi/btrvPfmmYo2/3hYEPtaaEAeowoOA11ZL8k/보컬로이드 옷입히기.swf?attach=1&knm=tfile.swf"
+      );
+    });
+  </script>
+</body>
+</html>
