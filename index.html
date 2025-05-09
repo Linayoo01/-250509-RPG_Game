@@ -1,181 +1,51 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게임 컬렉션</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 0;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-
-        .game-card {
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .game-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .game-thumbnail {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .game-info {
-            padding: 15px;
-        }
-
-        .game-title {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .play-button {
-            display: inline-block;
-            padding: 8px 20px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .play-button:hover {
-            background-color: #2980b9;
-        }
-
-        .game-player {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-
-        .game-player.active {
-            display: block;
-        }
-
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>게임 컬렉션</title>
+  <!-- Ruffle 로더 -->
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <style>
+    /* …기존 CSS… */
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>게임 컬렉션</h1>
-            <p>즐거운 게임 시간 되세요!</p>
-        </div>
-    </header>
+  <!-- …헤더, 그리드 등 기존 코드 유지… -->
 
-    <main class="container">
-        <div class="games-grid">
-            <!-- 게임 카드 예시 -->
-            <div class="game-card">
-                <img src="assets/thumbnails/game1.jpg" alt="게임 1" class="game-thumbnail">
-                <div class="game-info">
-                    <h3 class="game-title">게임 1</h3>
-                    <a href="#" class="play-button" data-game="game1.swf">플레이하기</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <img src="assets/thumbnails/vocaloid-dressup.jpg" alt="보컬로이드 드레스업" class="game-thumbnail">
-                <div class="game-info">
-                    <h3 class="game-title">보컬로이드 드레스업</h3>
-                    <a href="#" class="play-button" data-game="250509_Vocaloid Dress-Up.swf">플레이하기</a>
-                </div>
-            </div>
-            <!-- 추가 게임 카드는 여기에 -->
-        </div>
-    </main>
+  <div id="gamePlayer" class="game-player">
+    <button class="close-button">&times;</button>
+    <div id="flash-container" style="width:800px; height:600px;"></div>
+  </div>
 
-    <div id="gamePlayer" class="game-player">
-        <button class="close-button">&times;</button>
-        <object id="swfObject" width="800" height="600">
-            <param name="movie" value="">
-            <param name="quality" value="high">
-            <param name="allowScriptAccess" value="always">
-            <param name="allowFullScreen" value="true">
-        </object>
-    </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gamePlayer    = document.getElementById('gamePlayer');
+        const flashContainer= document.getElementById('flash-container');
+        const closeButton   = document.querySelector('.close-button');
+        const playButtons   = document.querySelectorAll('.play-button');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const gamePlayer = document.getElementById('gamePlayer');
-            const swfObject = document.getElementById('swfObject');
-            const closeButton = document.querySelector('.close-button');
-            const playButtons = document.querySelectorAll('.play-button');
+        playButtons.forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                const gameFile = btn.dataset.game; // e.g. "250509_Vocaloid_DressUp.swf"
 
-            playButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const gameFile = this.getAttribute('data-game');
-                    swfObject.setAttribute('data', gameFile);
-                    gamePlayer.classList.add('active');
-                });
-            });
+                // Ruffle 인스턴스 초기화
+                flashContainer.innerHTML = "";
+                const ruffle = window.RufflePlayer.newest();
+                const player = ruffle.createPlayer();
+                flashContainer.appendChild(player);
+                player.load(gameFile);
 
-            closeButton.addEventListener('click', function() {
-                gamePlayer.classList.remove('active');
-                swfObject.setAttribute('data', '');
+                gamePlayer.classList.add('active');
             });
         });
-    </script>
+
+        closeButton.addEventListener('click', () => {
+            gamePlayer.classList.remove('active');
+            flashContainer.innerHTML = "";
+        });
+    });
+  </script>
 </body>
-</html> 
+</html>
